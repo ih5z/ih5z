@@ -51,7 +51,6 @@ body {
 
 main, .site-header, .site-footer { position: relative; z-index: 1; }
 
-/* ---------------------------------------------------------------- header */
 .site-header {
   position: sticky;
   top: 0;
@@ -81,13 +80,8 @@ main, .site-header, .site-footer { position: relative; z-index: 1; }
 }
 .brand:hover { opacity: 0.7; }
 
-.brand-mark {
-  width: 20px;
-  height: 20px;
-  color: var(--muted);
-}
+.brand-mark { width: 20px; height: 20px; color: var(--muted); }
 
-/* ---------------------------------------------------------------- layout */
 main {
   width: min(100% - 40px, var(--max));
   margin: 0 auto;
@@ -160,7 +154,6 @@ main {
   margin: 0 0 clamp(40px, 6vw, 64px);
 }
 
-/* ---------------------------------------------------------------- panel */
 .panel {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0) 140px),
@@ -191,7 +184,6 @@ main {
 }
 .hint strong { font-weight: 500; color: #cfcfcf; }
 
-/* ---------------------------------------------------------------- fields */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -319,7 +311,6 @@ select option { background: #101010; color: var(--text); }
   pointer-events: none;
 }
 
-/* ---------------------------------------------------------------- buttons */
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -439,7 +430,6 @@ select option { background: #101010; color: var(--text); }
   color: var(--muted-2);
 }
 
-/* ---------------------------------------------------------------- success */
 .success {
   text-align: center;
   padding: clamp(44px, 7vw, 76px) clamp(24px, 4vw, 44px);
@@ -484,7 +474,6 @@ select option { background: #101010; color: var(--text); }
   line-height: 1.7;
 }
 
-/* ---------------------------------------------------------------- support */
 .support {
   text-align: center;
   padding: clamp(40px, 6vw, 64px) clamp(24px, 4vw, 48px);
@@ -517,7 +506,6 @@ select option { background: #101010; color: var(--text); }
   color: var(--muted-2);
 }
 
-/* ---------------------------------------------------------------- footer */
 .site-footer {
   padding: 32px clamp(20px, 5vw, 48px) 44px;
   text-align: center;
@@ -527,7 +515,6 @@ select option { background: #101010; color: var(--text); }
   color: var(--muted-2);
 }
 
-/* ---------------------------------------------------------------- reveal */
 .reveal {
   opacity: 0;
   transform: translateY(16px);
@@ -535,7 +522,6 @@ select option { background: #101010; color: var(--text); }
 }
 .reveal.in { opacity: 1; transform: none; }
 
-/* ---------------------------------------------------------------- responsive */
 @media (max-width: 720px) {
   .grid { grid-template-columns: 1fr; gap: 18px; }
   .span-2 { grid-column: span 1; }
