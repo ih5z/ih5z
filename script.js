@@ -11,7 +11,7 @@ const CONFIG = {
      https://web3forms.com → enter your email → copy key → paste below.
      Click the verification link in the email Web3Forms sends you, or every
      submission will be rejected. */
-  web3formsAccessKey: "YOUR_WEB3FORMS_ACCESS_KEY",
+  web3formsAccessKey: "f413f660-9dff-4e28-97ba-a527744e56bf",
 
   /* 2) Donation link — optional. "" hides the Support buttons. */
   donationUrl: "",
