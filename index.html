@@ -7,8 +7,6 @@
 <meta name="description" content="Request a song for ih5z to edit — slowed + reverb, sped up, remix, mashup." />
 <meta name="theme-color" content="#000000" />
 
-<!-- CRITICAL FALLBACK: guarantees dark theme even if style.css fails to load.
-     Loaded BEFORE the external stylesheet so style.css overrides when it loads. -->
 <style>
   html, body {
     background: #000000;
@@ -22,8 +20,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
-<!-- NOTE: filename MUST be lowercase "style.css" on disk. GitHub Pages is case-sensitive. -->
 <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -71,7 +67,6 @@
 
     <form id="requestForm" novalidate>
 
-      <!-- honeypot: real humans never touch this -->
       <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
       <div class="grid">
@@ -110,11 +105,11 @@
             <select id="musicLanguage" name="Music language" required>
               <option value="" selected disabled>Select a language</option>
               <option>English</option>
-              <option>Turkish</option>
               <option>Urdu</option>
-              <option>Arabic</option>
-                 <option>Farsi</option>
+              <option>Farsi</option>
+                 <option>Turkish</option>
                  <option>Pashto</option>
+              <option>Arabic</option>
               <option>Instrumental</option>
               <option>Other</option>
             </select>
@@ -124,15 +119,15 @@
         </div>
 
         <div class="field span-2">
-          <label for="referenceUrl">Reference song link <span class="opt">(optional)</span></label>
-          <input id="referenceUrl" name="Reference link" type="url" maxlength="500" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/track/..." />
-          <p class="error" data-error-for="referenceUrl" role="alert"></p>
+          <label for="username">Your username <span class="req" aria-hidden="true">*</span></label>
+          <input id="username" name="Requested by" type="text" required minlength="2" maxlength="40" autocomplete="username" placeholder="Required — so I can credit you" />
+          <p class="error" data-error-for="username" role="alert"></p>
         </div>
 
         <div class="field span-2">
-          <label for="username">Your username <span class="opt">(optional)</span></label>
-          <input id="username" name="Requested by" type="text" maxlength="40" autocomplete="off" placeholder="So I can credit you" />
-          <p class="error" data-error-for="username" role="alert"></p>
+          <label for="referenceUrl">Reference song link <span class="opt">(optional)</span></label>
+          <input id="referenceUrl" name="Reference link" type="url" maxlength="500" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/track/..." />
+          <p class="error" data-error-for="referenceUrl" role="alert"></p>
         </div>
 
         <div class="field span-2">
@@ -195,7 +190,6 @@
   <span>© 2026 ih5z. All rights reserved.</span>
 </footer>
 
-<!-- Watchdog: if script.js fails to load (wrong filename / case / path), say so visibly. -->
 <script>
   setTimeout(function () {
     if (!window.__ih5zLoaded) {
@@ -209,7 +203,6 @@
   }, 1500);
 </script>
 
-<!-- NOTE: filename MUST be lowercase "script.js" on disk. -->
 <script src="./script.js"></script>
 </body>
 </html>
