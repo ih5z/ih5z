@@ -7,25 +7,22 @@
    ------------------------------------------------------------------------- */
 
 const CONFIG = {
-  /* 1) FORM ENDPOINT — required.
-     Go to https://web3forms.com, enter the email where requests should land,
-     copy the Access Key, paste it below. IMPORTANT: after creating the key,
-     click the verification link Web3Forms emails you. Unverified keys fail. */
-  web3formsAccessKey: "f413f660-9dff-4e28-97ba-a527744e56bf",
+  /* 1) Web3Forms Access Key — required.
+     https://web3forms.com → enter your email → copy key → paste below.
+     Click the verification link in the email Web3Forms sends you, or every
+     submission will be rejected. */
+  web3formsAccessKey: "YOUR_WEB3FORMS_ACCESS_KEY",
 
-  /* 2) DONATION LINK — optional.
-     e.g. "https://buymeacoffee.com/ih5z" or a Ko-fi / PayPal.me / UPI link.
-     Leave "" and the Support buttons stay hidden — no dead buttons. */
+  /* 2) Donation link — optional. "" hides the Support buttons. */
   donationUrl: "",
 
-  /* 3) REQUEST COUNTER — optional.
-     URL returning JSON like: { "count": 128 }. Leave "" to hide. */
+  /* 3) Request counter — optional. URL returning {"count": N}. "" hides it. */
   counterEndpoint: "",
 
   /* 4) Anti-spam: seconds a human needs before submitting. */
   minFillSeconds: 3,
 
-  /* 5) Debug: set true to log every request/response to the console. */
+  /* 5) Debug — logs every request/response to the console. */
   debug: true
 };
 
@@ -62,6 +59,13 @@ const RULES = {
   },
   editStyle: (v) => (v ? "" : "Choose an edit style."),
   musicLanguage: (v) => (v ? "" : "Choose the song's language."),
+  username: (v) => {
+    const s = v.trim();
+    if (!s) return "Username is required — I need it to credit the request.";
+    if (s.length < 2) return "Username needs at least 2 characters.";
+    if (s.length > 40) return "Keep it under 40 characters.";
+    return "";
+  },
   referenceUrl: (v) => {
     const s = v.trim();
     if (!s) return "";
@@ -73,7 +77,6 @@ const RULES = {
     }
     return "";
   },
-  username: (v) => (v.trim().length > 40 ? "Keep it under 40 characters." : ""),
   details: (v) => (v.trim().length > 1000 ? "Keep it under 1000 characters." : "")
 };
 
@@ -152,20 +155,17 @@ async function handleSubmit(event) {
   if (isSubmitting) return;
   hideStatus();
 
-  // honeypot
   if (form.botcheck && form.botcheck.checked) {
-    if (CONFIG.debug) console.warn("[ih5z] honeypot triggered — submission aborted.");
+    if (CONFIG.debug) console.warn("[ih5z] honeypot triggered — aborted.");
     return;
   }
 
-  // fill-time trap
   const elapsed = (Date.now() - loadedAt) / 1000;
   if (elapsed < CONFIG.minFillSeconds) {
     showStatus("Hold on a moment, then submit again.");
     return;
   }
 
-  // config check
   if (!CONFIG.web3formsAccessKey || CONFIG.web3formsAccessKey === "YOUR_WEB3FORMS_ACCESS_KEY") {
     showStatus("Form is not connected — open script.js and paste your Web3Forms Access Key into CONFIG.web3formsAccessKey.");
     if (CONFIG.debug) console.error("[ih5z] Access key not configured.");
@@ -179,7 +179,6 @@ async function handleSubmit(event) {
 
   setLoading(true);
 
-  // Use FormData — most CORS-friendly, matches native form semantics.
   const payload = new FormData();
   payload.append("access_key", CONFIG.web3formsAccessKey);
   payload.append("subject", "ih5z request — " + form.Song.value.trim() + " by " + form.Artist.value.trim());
@@ -189,8 +188,8 @@ async function handleSubmit(event) {
   payload.append("Artist", form.Artist.value.trim());
   payload.append("Edit style", form["Edit style"].value);
   payload.append("Music language", form["Music language"].value);
+  payload.append("Requested by", form["Requested by"].value.trim());
   payload.append("Reference link", form["Reference link"].value.trim() || "—");
-  payload.append("Requested by", form["Requested by"].value.trim() || "Anonymous");
   payload.append("Details", form.Details.value.trim() || "—");
   payload.append("Submitted at", new Date().toISOString());
 
@@ -223,7 +222,6 @@ async function handleSubmit(event) {
       throw new Error(reason);
     }
 
-    // ---- real success only ----
     form.reset();
     clearAllErrors();
     setLoading(false);
@@ -292,7 +290,7 @@ async function initCounter() {
     counterEl.textContent = n + " request" + (data.count === 1 ? "" : "s") + " received";
     counterEl.hidden = false;
   } catch {
-    /* silent — no fake counter */
+    /* silent */
   }
 }
 
@@ -340,5 +338,4 @@ initReveal();
 initDonation();
 initCounter();
 
-// signal to the inline watchdog that script.js loaded
 window.__ih5zLoaded = true;
