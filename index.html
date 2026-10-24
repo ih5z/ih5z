@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ih5z — Music Requests</title>
+<meta name="description" content="Request a song for ih5z to edit — slowed + reverb, sped up, remix, mashup." />
+<meta name="theme-color" content="#000000" />
+
+<!-- CRITICAL FALLBACK: guarantees dark theme even if style.css fails to load.
+     Loaded BEFORE the external stylesheet so style.css overrides when it loads. -->
+<style>
+  html, body {
+    background: #000000;
+    color: #f0f0f0;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+    min-height: 100%;
+  }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<!-- NOTE: filename MUST be lowercase "style.css" on disk. GitHub Pages is case-sensitive. -->
+<link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+<div class="vignette" aria-hidden="true"></div>
+
+<header class="site-header">
+  <a class="brand" href="#top" aria-label="ih5z home">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9 18V5l10-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="16" cy="16" r="3" />
+    </svg>
+    <span>ih5z</span>
+  </a>
+
+  <button class="btn btn-ghost" id="donateBtn" type="button" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8Z" />
+    </svg>
+    <span>Support ih5z</span>
+  </button>
+</header>
+
+<main id="top">
+
+  <section class="hero reveal">
+    <p class="eyebrow">Music editing studio</p>
+    <h1>Request your next <em>edit</em>.</h1>
+    <p class="lede">
+      Send a song. I'll take it from there — slowed and reverbed, sped up, remixed, or mashed.
+      Every request gets read. Not every request gets made.
+    </p>
+    <p class="counter" id="requestCounter" hidden></p>
+  </section>
+
+  <div class="rule" aria-hidden="true"></div>
+
+  <section class="panel reveal" id="requestPanel" aria-labelledby="formTitle">
+    <div class="panel-head">
+      <h2 id="formTitle">Song request</h2>
+      <p class="hint">
+        Requests are <strong>suggestions</strong>, not commissions — a submitted song is never guaranteed to be edited.
+      </p>
+    </div>
+
+    <form id="requestForm" novalidate>
+
+      <!-- honeypot: real humans never touch this -->
+      <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+      <div class="grid">
+        <div class="field">
+          <label for="songName">Song name <span class="req" aria-hidden="true">*</span></label>
+          <input id="songName" name="Song" type="text" required maxlength="120" autocomplete="off" placeholder="e.g. Nights" />
+          <p class="error" data-error-for="songName" role="alert"></p>
+        </div>
+
+        <div class="field">
+          <label for="artistName">Artist name <span class="req" aria-hidden="true">*</span></label>
+          <input id="artistName" name="Artist" type="text" required maxlength="120" autocomplete="off" placeholder="e.g. Frank Ocean" />
+          <p class="error" data-error-for="artistName" role="alert"></p>
+        </div>
+
+        <div class="field">
+          <label for="editStyle">Preferred edit style <span class="req" aria-hidden="true">*</span></label>
+          <div class="select-wrap">
+            <select id="editStyle" name="Edit style" required>
+              <option value="" selected disabled>Select a style</option>
+              <option>Slowed + Reverb</option>
+              <option>Sped Up</option>
+              <option>Remix</option>
+              <option>Mashup</option>
+              <option>Other</option>
+            </select>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <p class="error" data-error-for="editStyle" role="alert"></p>
+        </div>
+
+        <div class="field">
+          <label for="musicLanguage">Music language <span class="req" aria-hidden="true">*</span></label>
+          <div class="select-wrap">
+            <select id="musicLanguage" name="Music language" required>
+              <option value="" selected disabled>Select a language</option>
+              <option>English</option>
+              <option>Hindi</option>
+              <option>Punjabi</option>
+              <option>Urdu</option>
+              <option>Tamil</option>
+              <option>Telugu</option>
+              <option>Malayalam</option>
+              <option>Kannada</option>
+              <option>Bengali</option>
+              <option>Marathi</option>
+              <option>Gujarati</option>
+              <option>Arabic</option>
+              <option>Korean</option>
+              <option>Japanese</option>
+              <option>Spanish</option>
+              <option>French</option>
+              <option>Portuguese</option>
+              <option>Instrumental</option>
+              <option>Other</option>
+            </select>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <p class="error" data-error-for="musicLanguage" role="alert"></p>
+        </div>
+
+        <div class="field span-2">
+          <label for="referenceUrl">Reference song link <span class="opt">(optional)</span></label>
+          <input id="referenceUrl" name="Reference link" type="url" maxlength="500" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/track/..." />
+          <p class="error" data-error-for="referenceUrl" role="alert"></p>
+        </div>
+
+        <div class="field span-2">
+          <label for="username">Your username <span class="opt">(optional)</span></label>
+          <input id="username" name="Requested by" type="text" maxlength="40" autocomplete="off" placeholder="So I can credit you" />
+          <p class="error" data-error-for="username" role="alert"></p>
+        </div>
+
+        <div class="field span-2">
+          <label for="details">Additional details <span class="opt">(optional)</span></label>
+          <textarea id="details" name="Details" rows="4" maxlength="1000" placeholder="Specific tempo, a section you want looped, a vibe you're after…"></textarea>
+          <p class="error" data-error-for="details" role="alert"></p>
+        </div>
+      </div>
+
+      <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="submitBtn" type="submit">
+          <span class="btn-label">Submit request</span>
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+
+        <button class="btn btn-ghost" id="clearBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          <span>Clear form</span>
+        </button>
+      </div>
+
+      <p class="fine">Your request goes straight to my inbox. No account, no tracking.</p>
+    </form>
+  </section>
+
+  <section class="panel success reveal" id="successPanel" hidden aria-labelledby="successTitle" tabindex="-1">
+    <div class="check-ring" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5.5 5.5L20 6.5"/></svg>
+    </div>
+    <h2 id="successTitle">Request received</h2>
+    <p class="success-copy">
+      It landed in my inbox. If the song fits, you'll hear it in an edit.
+      Requests aren't guaranteed — but every one gets a listen.
+    </p>
+    <button class="btn btn-primary" id="backHomeBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+      <span>Back to home</span>
+    </button>
+  </section>
+
+  <section class="support reveal" aria-labelledby="supportTitle">
+    <h2 id="supportTitle">Support the edits</h2>
+    <p>
+      Every edit is made by hand, for free. If something here moved you,
+      a tip keeps the lights on and the exports coming.
+    </p>
+    <button class="btn btn-primary" id="supportBtn2" type="button" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+      <span>Support ih5z</span>
+    </button>
+    <p class="thanks">Thank you — genuinely. It doesn't go unnoticed.</p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <span>© 2026 ih5z. All rights reserved.</span>
+</footer>
+
+<!-- Watchdog: if script.js fails to load (wrong filename / case / path), say so visibly. -->
+<script>
+  setTimeout(function () {
+    if (!window.__ih5zLoaded) {
+      var s = document.getElementById("formStatus");
+      if (s) {
+        s.textContent = "script.js did not load. Check that the file is named exactly \"script.js\" (lowercase) at the repo root.";
+        s.classList.add("show");
+      }
+      console.error("[ih5z] script.js failed to load — check filename case and location.");
+    }
+  }, 1500);
+</script>
+
+<!-- NOTE: filename MUST be lowercase "script.js" on disk. -->
+<script src="./script.js"></script>
+</body>
+</html>
