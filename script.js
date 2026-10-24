@@ -11,7 +11,7 @@ const CONFIG = {
      Go to https://web3forms.com, enter the email where requests should land,
      copy the Access Key, paste it below. IMPORTANT: after creating the key,
      click the verification link Web3Forms emails you. Unverified keys fail. */
-  web3formsAccessKey: "YOUR_WEB3FORMS_ACCESS_KEY",
+  web3formsAccessKey: "f413f660-9dff-4e28-97ba-a527744e56bf",
 
   /* 2) DONATION LINK — optional.
      e.g. "https://buymeacoffee.com/ih5z" or a Ko-fi / PayPal.me / UPI link.
