@@ -121,6 +121,40 @@
           <p class="error" data-error-for="referenceUrl" role="alert"></p>
         </div>
 
+        <!-- ============ SONG COVER (optional file upload) ============ -->
+        <div class="field span-2">
+          <label for="songCover">Song cover image <span class="opt">(optional)</span></label>
+
+          <input id="songCover" name="cover" type="file" accept="image/*" class="cover-input" hidden />
+
+          <div class="cover-row" id="coverRow">
+            <label for="songCover" class="cover-trigger" id="coverTrigger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <path d="M17 8l-5-5-5 5"/>
+                <path d="M12 3v13"/>
+              </svg>
+              <span id="coverTriggerLabel">Upload cover</span>
+            </label>
+
+            <button type="button" class="cover-clear" id="coverClear" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <span>Remove</span>
+            </button>
+          </div>
+
+          <div class="cover-preview" id="coverPreview" hidden>
+            <img id="coverImg" alt="Song cover preview" />
+            <div class="cover-meta">
+              <p class="cover-name" id="coverName"></p>
+              <p class="cover-size" id="coverSize"></p>
+            </div>
+          </div>
+
+          <p class="error" data-error-for="songCover" role="alert"></p>
+          <p class="cover-hint">JPG, PNG or WebP — up to 4 MB. Purely to help me spot the right track.</p>
+        </div>
+
         <div class="field span-2">
           <label for="details">Additional details <span class="opt">(optional)</span></label>
           <textarea id="details" name="Details" rows="4" maxlength="1000" placeholder="Specific tempo, a section you want looped, a vibe you're after…"></textarea>
