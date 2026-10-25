@@ -19,7 +19,10 @@ const CONFIG = {
   /* 3) Anti-spam: seconds a human needs before submitting. */
   minFillSeconds: 5,
 
-  /* 4) Debug — logs every request/response to the console. */
+  /* 4) Cover upload limit in MB — Web3Forms caps attachments around 5MB total. */
+  maxCoverMB: 4,
+
+  /* 5) Debug — logs every request/response to the console. */
   debug: true
 };
 
@@ -36,8 +39,21 @@ const backHomeBtn = document.getElementById("backHomeBtn");
 const formStatus = document.getElementById("formStatus");
 const counterEl = document.getElementById("requestCounter");
 
+/* cover upload elements */
+const coverInput = document.getElementById("songCover");
+const coverTrigger = document.getElementById("coverTrigger");
+const coverTriggerLabel = document.getElementById("coverTriggerLabel");
+const coverClear = document.getElementById("coverClear");
+const coverPreview = document.getElementById("coverPreview");
+const coverImg = document.getElementById("coverImg");
+const coverName = document.getElementById("coverName");
+const coverSize = document.getElementById("coverSize");
+
 let loadedAt = Date.now();
 let isSubmitting = false;
+let coverFile = null;         // File object if user attached one
+let coverDataUrl = null;      // base64 data URL for Web3Forms attachment
+let coverPreviewUrl = null;   // local object URL for thumbnail (revoked on clear)
 
 /* -------------------------------------------------------------- validation */
 
@@ -96,6 +112,7 @@ function setError(id, message) {
 
 function clearAllErrors() {
   Object.keys(RULES).forEach((id) => setError(id, ""));
+  if (coverInput) setError("songCover", "");
   hideStatus();
 }
 
@@ -109,6 +126,14 @@ function validateForm() {
     setError(id, message);
     if (message && !firstInvalid) firstInvalid = input;
   });
+
+  /* cover: optional, but if a file was rejected earlier show that */
+  if (coverFile && coverFile.size > CONFIG.maxCoverMB * 1024 * 1024) {
+    setError("songCover", "Cover is larger than " + CONFIG.maxCoverMB + " MB.");
+    if (!firstInvalid) firstInvalid = coverInput;
+  } else {
+    setError("songCover", "");
+  }
 
   if (firstInvalid) {
     firstInvalid.focus({ preventScroll: true });
@@ -140,6 +165,72 @@ function setLoading(loading) {
   const label = submitBtn.querySelector(".btn-label");
   if (label) label.textContent = loading ? "Sending…" : "Submit request";
   form.setAttribute("aria-busy", loading ? "true" : "false");
+}
+
+/* ----------------------------------------------------------- cover handling */
+
+function humanSize(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+}
+
+function clearCover() {
+  if (coverPreviewUrl) {
+    URL.revokeObjectURL(coverPreviewUrl);
+    coverPreviewUrl = null;
+  }
+  coverFile = null;
+  coverDataUrl = null;
+  if (coverInput) coverInput.value = "";
+  if (coverPreview) coverPreview.hidden = true;
+  if (coverClear) coverClear.hidden = true;
+  if (coverTriggerLabel) coverTriggerLabel.textContent = "Upload cover";
+  setError("songCover", "");
+}
+
+async function handleCoverSelect() {
+  setError("songCover", "");
+  const file = coverInput && coverInput.files && coverInput.files[0];
+  if (!file) return;
+
+  if (!file.type || !file.type.startsWith("image/")) {
+    setError("songCover", "That file isn't an image.");
+    clearCover();
+    return;
+  }
+
+  const maxBytes = CONFIG.maxCoverMB * 1024 * 1024;
+  if (file.size > maxBytes) {
+    setError("songCover", "Cover is " + humanSize(file.size) + " — max is " + CONFIG.maxCoverMB + " MB.");
+    clearCover();
+    return;
+  }
+
+  coverFile = file;
+
+  /* preview */
+  if (coverPreviewUrl) URL.revokeObjectURL(coverPreviewUrl);
+  coverPreviewUrl = URL.createObjectURL(file);
+  coverImg.src = coverPreviewUrl;
+  coverName.textContent = file.name;
+  coverSize.textContent = humanSize(file.size);
+  coverPreview.hidden = false;
+  coverClear.hidden = false;
+  coverTriggerLabel.textContent = "Replace cover";
+
+  /* base64 for Web3Forms attachment */
+  try {
+    coverDataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  } catch {
+    setError("songCover", "Could not read that file. Try a different one.");
+    clearCover();
+  }
 }
 
 /* ------------------------------------------------------------------ submit */
@@ -186,10 +277,18 @@ async function handleSubmit(event) {
   payload.append("Requested by", form["Requested by"].value.trim());
   payload.append("Reference link", form["Reference link"].value.trim() || "—");
   payload.append("Details", form.Details.value.trim() || "—");
+  payload.append("Cover", coverFile ? coverFile.name : "—");
   payload.append("Submitted at", new Date().toISOString());
 
+  /* Web3Forms expects attachments as base64 data-URLs in the "attachment" field. */
+  if (coverDataUrl) {
+    payload.append("attachment", coverDataUrl);
+  }
+
   if (CONFIG.debug) {
-    console.log("[ih5z] submitting →", Object.fromEntries(payload.entries()));
+    const snapshot = Object.fromEntries(payload.entries());
+    if (snapshot.attachment) snapshot.attachment = "[base64 " + coverDataUrl.length + " chars]";
+    console.log("[ih5z] submitting →", snapshot);
   }
 
   try {
@@ -218,6 +317,7 @@ async function handleSubmit(event) {
     }
 
     form.reset();
+    clearCover();
     clearAllErrors();
     setLoading(false);
     loadedAt = Date.now();
@@ -251,6 +351,7 @@ function backHome() {
 
 function clearForm() {
   form.reset();
+  clearCover();
   clearAllErrors();
   const first = document.getElementById("songName");
   if (first) first.focus({ preventScroll: true });
@@ -314,6 +415,9 @@ Object.keys(RULES).forEach((id) => {
     }
   });
 });
+
+if (coverInput) coverInput.addEventListener("change", handleCoverSelect);
+if (coverClear) coverClear.addEventListener("click", clearCover);
 
 initReveal();
 initCounter();
