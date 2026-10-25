@@ -13,16 +13,13 @@ const CONFIG = {
      submission will be rejected. */
   web3formsAccessKey: "f413f660-9dff-4e28-97ba-a527744e56bf",
 
-  /* 2) Donation link — optional. "" hides the Support buttons. */
-  donationUrl: "PK40UMBL0000032930003782",
-
-  /* 3) Request counter — optional. URL returning {"count": N}. "" hides it. */
+  /* 2) Request counter — optional. URL returning {"count": N}. "" hides it. */
   counterEndpoint: "",
 
-  /* 4) Anti-spam: seconds a human needs before submitting. */
+  /* 3) Anti-spam: seconds a human needs before submitting. */
   minFillSeconds: 5,
 
-  /* 5) Debug — logs every request/response to the console. */
+  /* 4) Debug — logs every request/response to the console. */
   debug: true
 };
 
@@ -38,8 +35,6 @@ const clearBtn = document.getElementById("clearBtn");
 const backHomeBtn = document.getElementById("backHomeBtn");
 const formStatus = document.getElementById("formStatus");
 const counterEl = document.getElementById("requestCounter");
-const donateBtn = document.getElementById("donateBtn");
-const supportBtn2 = document.getElementById("supportBtn2");
 
 let loadedAt = Date.now();
 let isSubmitting = false;
@@ -261,20 +256,6 @@ function clearForm() {
   if (first) first.focus({ preventScroll: true });
 }
 
-/* --------------------------------------------------------------- donation */
-
-function initDonation() {
-  const url = (CONFIG.donationUrl || "").trim();
-  if (!url) return;
-
-  const open = () => window.open(url, "_blank", "noopener,noreferrer");
-  [donateBtn, supportBtn2].forEach((btn) => {
-    if (!btn) return;
-    btn.hidden = false;
-    btn.addEventListener("click", open);
-  });
-}
-
 /* ---------------------------------------------------------------- counter */
 
 async function initCounter() {
@@ -335,7 +316,6 @@ Object.keys(RULES).forEach((id) => {
 });
 
 initReveal();
-initDonation();
 initCounter();
 
 window.__ih5zLoaded = true;
