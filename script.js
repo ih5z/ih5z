@@ -19,8 +19,11 @@ const CONFIG = {
   /* 3) Anti-spam: seconds a human needs before submitting. */
   minFillSeconds: 5,
 
-  /* 4) Cover upload limit in MB — Web3Forms caps attachments around 5MB total. */
-  maxCoverMB: 4,
+  /* 4) Cover: max raw input size in MB.
+     Files are compressed client-side (max 800x800, JPEG q0.75) before being
+     sent as a plain data-URL form field — no Web3Forms pro / attachment needed.
+     Free tier caps payload; 8 MB raw input is safe. */
+  maxCoverInputMB: 8,
 
   /* 5) Debug — logs every request/response to the console. */
   debug: true
@@ -41,7 +44,6 @@ const counterEl = document.getElementById("requestCounter");
 
 /* cover upload elements */
 const coverInput = document.getElementById("songCover");
-const coverTrigger = document.getElementById("coverTrigger");
 const coverTriggerLabel = document.getElementById("coverTriggerLabel");
 const coverClear = document.getElementById("coverClear");
 const coverPreview = document.getElementById("coverPreview");
@@ -51,9 +53,9 @@ const coverSize = document.getElementById("coverSize");
 
 let loadedAt = Date.now();
 let isSubmitting = false;
-let coverFile = null;         // File object if user attached one
-let coverDataUrl = null;      // base64 data URL for Web3Forms attachment
-let coverPreviewUrl = null;   // local object URL for thumbnail (revoked on clear)
+let coverFile = null;        // original File the user picked
+let coverDataUrl = null;     // compressed data URL sent in the payload
+let coverPreviewUrl = null;  // blob URL for the thumbnail (revoked on clear)
 
 /* -------------------------------------------------------------- validation */
 
@@ -127,14 +129,6 @@ function validateForm() {
     if (message && !firstInvalid) firstInvalid = input;
   });
 
-  /* cover: optional, but if a file was rejected earlier show that */
-  if (coverFile && coverFile.size > CONFIG.maxCoverMB * 1024 * 1024) {
-    setError("songCover", "Cover is larger than " + CONFIG.maxCoverMB + " MB.");
-    if (!firstInvalid) firstInvalid = coverInput;
-  } else {
-    setError("songCover", "");
-  }
-
   if (firstInvalid) {
     firstInvalid.focus({ preventScroll: true });
     firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -175,6 +169,47 @@ function humanSize(bytes) {
   return (bytes / (1024 * 1024)).toFixed(2) + " MB";
 }
 
+/* Compress to max 800x800 JPEG q0.75 — small enough to travel as a plain
+   form field on Web3Forms' free tier, large enough to read the artwork. */
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const max = 800;
+      let { width, height } = img;
+      if (width > max || height > max) {
+        if (width > height) {
+          height = Math.round(height * (max / width));
+          width = max;
+        } else {
+          width = Math.round(width * (max / height));
+          height = max;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      try {
+        resolve(canvas.toDataURL("image/jpeg", 0.75));
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Could not read that image."));
+    };
+
+    img.src = objectUrl;
+  });
+}
+
 function clearCover() {
   if (coverPreviewUrl) {
     URL.revokeObjectURL(coverPreviewUrl);
@@ -200,37 +235,34 @@ async function handleCoverSelect() {
     return;
   }
 
-  const maxBytes = CONFIG.maxCoverMB * 1024 * 1024;
+  const maxBytes = CONFIG.maxCoverInputMB * 1024 * 1024;
   if (file.size > maxBytes) {
-    setError("songCover", "Cover is " + humanSize(file.size) + " — max is " + CONFIG.maxCoverMB + " MB.");
+    setError("songCover", "Image is " + humanSize(file.size) + " — max is " + CONFIG.maxCoverInputMB + " MB.");
     clearCover();
     return;
   }
 
   coverFile = file;
 
-  /* preview */
+  try {
+    coverDataUrl = await compressImage(file);
+  } catch (err) {
+    setError("songCover", err.message || "Could not process that image.");
+    clearCover();
+    return;
+  }
+
+  /* preview uses the compressed result — what you see is what gets sent */
   if (coverPreviewUrl) URL.revokeObjectURL(coverPreviewUrl);
-  coverPreviewUrl = URL.createObjectURL(file);
-  coverImg.src = coverPreviewUrl;
+  coverPreviewUrl = null;
+
+  coverImg.src = coverDataUrl;
   coverName.textContent = file.name;
-  coverSize.textContent = humanSize(file.size);
+  const approxBytes = Math.round((coverDataUrl.length * 3) / 4);
+  coverSize.textContent = humanSize(approxBytes) + " (optimised)";
   coverPreview.hidden = false;
   coverClear.hidden = false;
   coverTriggerLabel.textContent = "Replace cover";
-
-  /* base64 for Web3Forms attachment */
-  try {
-    coverDataUrl = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
-  } catch {
-    setError("songCover", "Could not read that file. Try a different one.");
-    clearCover();
-  }
 }
 
 /* ------------------------------------------------------------------ submit */
@@ -277,17 +309,24 @@ async function handleSubmit(event) {
   payload.append("Requested by", form["Requested by"].value.trim());
   payload.append("Reference link", form["Reference link"].value.trim() || "—");
   payload.append("Details", form.Details.value.trim() || "—");
-  payload.append("Cover", coverFile ? coverFile.name : "—");
-  payload.append("Submitted at", new Date().toISOString());
+  payload.append("Cover file name", coverFile ? coverFile.name : "—");
 
-  /* Web3Forms expects attachments as base64 data-URLs in the "attachment" field. */
-  if (coverDataUrl) {
-    payload.append("attachment", coverDataUrl);
-  }
+  /* Cover travels as a plain data-URL text field — no attachment endpoint,
+     no pro tier. In the email, copy the whole "data:image/..." value and
+     paste it into any browser address bar to view the image. */
+  payload.append(
+    "Song cover (paste value into browser address bar to view)",
+    coverDataUrl || "—"
+  );
+
+  payload.append("Submitted at", new Date().toISOString());
 
   if (CONFIG.debug) {
     const snapshot = Object.fromEntries(payload.entries());
-    if (snapshot.attachment) snapshot.attachment = "[base64 " + coverDataUrl.length + " chars]";
+    const coverKey = "Song cover (paste value into browser address bar to view)";
+    if (snapshot[coverKey] && snapshot[coverKey] !== "—") {
+      snapshot[coverKey] = "[data URL, " + snapshot[coverKey].length + " chars]";
+    }
     console.log("[ih5z] submitting →", snapshot);
   }
 
