@@ -14,7 +14,7 @@ const CONFIG = {
   web3formsAccessKey: "f413f660-9dff-4e28-97ba-a527744e56bf",
 
   /* 2) Donation link — optional. "" hides the Support buttons. */
-  donationUrl: "",
+  donationUrl: "PK40UMBL0000032930003782",
 
   /* 3) Request counter — optional. URL returning {"count": N}. "" hides it. */
   counterEndpoint: "",
