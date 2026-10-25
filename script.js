@@ -20,7 +20,7 @@ const CONFIG = {
   counterEndpoint: "",
 
   /* 4) Anti-spam: seconds a human needs before submitting. */
-  minFillSeconds: 3,
+  minFillSeconds: 5,
 
   /* 5) Debug — logs every request/response to the console. */
   debug: true
