@@ -474,7 +474,8 @@ select option { background: #101010; color: var(--text); }
   line-height: 1.7;
 }
 
-.support {
+/* ---------------------------------------------------------------- socials */
+.socials {
   text-align: center;
   padding: clamp(40px, 6vw, 64px) clamp(24px, 4vw, 48px);
   border: 1px solid var(--line);
@@ -483,14 +484,14 @@ select option { background: #101010; color: var(--text); }
   margin-bottom: 40px;
 }
 
-.support h2 {
+.socials h2 {
   margin: 0 0 14px;
   font-family: "Instrument Serif", Georgia, serif;
   font-weight: 400;
   font-size: clamp(24px, 3.4vw, 32px);
 }
 
-.support p {
+.socials p {
   max-width: 48ch;
   margin: 0 auto 28px;
   font-size: 14px;
@@ -499,11 +500,16 @@ select option { background: #101010; color: var(--text); }
   line-height: 1.7;
 }
 
-.support .thanks {
-  margin: 24px auto 0;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--muted-2);
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.social-btn {
+  text-decoration: none;
+  min-width: 150px;
 }
 
 .site-footer {
@@ -530,12 +536,8 @@ select option { background: #101010; color: var(--text); }
   .actions .btn { width: 100%; }
   .site-header { padding: 14px 20px; }
   .brand { font-size: 23px; }
-  .site-header .btn { padding: 10px 16px; min-height: 40px; font-size: 12.5px; }
-}
-
-@media (max-width: 380px) {
-  .site-header .btn span { display: none; }
-  .site-header .btn { padding: 10px 12px; }
+  .social-links { flex-direction: column; }
+  .social-btn { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
